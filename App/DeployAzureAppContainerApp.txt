@@ -1,0 +1,41 @@
+https://docs.microsoft.com/en-us/azure/container-instances/container-instances-tutorial-prepare-app
+
+CREATE RESOURCE GROUP
+az group create --name rg-bucket-dev --location westus
+
+https://docs.microsoft.com/en-us/azure/container-instances/container-instances-tutorial-prepare-acr
+CREATE AZURE CONTAINER REGISTRY
+az acr create --resource-group rg-bucket-dev --name acrbucketdev --sku Basic
+
+LOG IN
+az acr login --name acrbucketdev
+
+az acr show --name acrbucketdev --query loginServer --output table
+
+Result
+-----------------------
+acrbucketdev.azurecr.io
+
+TAG IMAGE
+docker tag aci-tutorial-app acrbucketdev.azurecr.io/aci-tutorial-app:v1
+
+PUSH to ACR
+docker push acrbucketdev.azurecr.io/aci-tutorial-app:v1
+
+LIST IMAGES in ACR
+az acr repository list --name acrbucketdev --output table
+
+LIST IMAGES in ACR WITH TAGS
+az acr repository show-tags --name acrbucketdev --repository aci-tutorial-app --output table
+
+az acr show --name acrbucketdev --query loginServer
+acrbucketdev.azurecr.io
+
+DEPLOY CONTAINER
+az container create --resource-group rg-bucket-dev --name aci-tutorial-app --image acrbucketdev.azurecr.io/aci-tutorial-app:v1 --cpu 1 --memory 1 --registry-login-server acrbucketdev.azurecr.io --registry-username bd3036be-85e7-48be-b396-0eecad99dba9 --registry-password OBg8Q~Ry.kwLfBsBlIbPt1RInXUUxM6SPXfyaddh --ip-address Public --dns-name-label bucketdns --ports 80
+
+VERIFY DEPLOYMENT PROGRESS
+az container show --resource-group rg-bucket-dev --name aci-tutorial-app --query instanceView.state
+
+VIEW APPLICATION AND CONTAINER LOGS
+az container show --resource-group rg-bucket-dev --name aci-tutorial-app --query ipAddress.fqdn
