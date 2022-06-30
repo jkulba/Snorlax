@@ -1,7 +1,16 @@
 https://docs.microsoft.com/en-us/azure/container-instances/container-instances-tutorial-prepare-app
 
 CREATE RESOURCE GROUP
-az group create --name rg-bucket-dev --location westus
+az group create --name rgbucketdev --location westus
+
+CREATE SERVICE BUS NAMESPACE
+az servicebus namespace create --resource-group rgbucketdev --name nsbucketdev --location westus
+
+CREATE QUEUE 
+az servicebus queue create --resource-group rgbucketdev --namespace-name nsbucketdev --name SubmitBucketQueue
+
+FETCH QUEUE CONNECTION STRING
+az servicebus namespace authorization-rule keys list --resource-group rgbucketdev --namespace-name nsbucketdev --name RootManageSharedAccessKey --query primaryConnectionString --output tsv
 
 https://docs.microsoft.com/en-us/azure/container-instances/container-instances-tutorial-prepare-acr
 CREATE AZURE CONTAINER REGISTRY
